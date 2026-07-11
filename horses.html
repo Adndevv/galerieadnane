@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adnane Art - Premium Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;500&display=swap" rel="stylesheet">
+
+<style>
+* {margin:0; padding:0; box-sizing:border-box;}
+
+body {
+    background: radial-gradient(circle, #111, #000);
+    font-family: 'Montserrat', sans-serif;
+    color:white;
+    padding:60px 20px;
+}
+
+h1 {
+    text-align:center;
+    font-size:3rem;
+    margin-bottom:50px;
+    letter-spacing:8px;
+    background: linear-gradient(to right, gold, white);
+    
+    -webkit-text-fill-color: transparent;
+}
+
+/* GRID */
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* CARD 3D */
+.card {
+    height: 400px;
+    perspective: 1000px;
+    cursor:pointer;
+    
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-front img {
+    width:100%; height:100%;
+    object-fit:cover;
+    transition: 0.6s;
+}
+
+/* EFFET LUMIERE PRESERVE */
+.card:hover .card-front img {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+}
+
+/* VERSO DE LA CARTE */
+.card-back {
+    background: linear-gradient(135deg, #1a1a1a, #000);
+    border: 2px solid gold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: rotateY(180deg);
+    padding: 20px;
+    text-align: center;
+}
+
+/* PETIT TITRE AVANT LE PRIX */
+.card-back h3 {
+    font-family: 'Playfair Display', serif;
+    color: #fff;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+.card-back .price {
+    color: gold;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.btn-order {
+    background: gold;
+    color: black;
+    border: none;
+    padding: 12px 25px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    font-family: 'Montserrat';
+}
+
+.btn-order:hover { background: white; transform: scale(1.05); }
+
+/* FORMULAIRE MODAL */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.modal.active { display: flex; }
+
+.form-container {
+    background: #1a1a1a;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid gold;
+}
+
+.form-container h2 { color: gold; margin-bottom: 20px; text-align: center; }
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    background: #222;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 5px;
+}
+
+input:focus { border-color: gold; outline: none; }
+
+.error { color: #ff4d4d; font-size: 0.8rem; display: none; margin-bottom: 5px; }
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: gold;
+    border: none;
+    font-weight: bold;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+/* VIEWER LIGHTBOX */
+.viewer {
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.95);
+    backdrop-filter:blur(10px);
+    display:flex; justify-content:center; align-items:center;
+    opacity:0; pointer-events:none; transition:0.5s; z-index:9999;
+}
+.viewer.active { opacity:1; pointer-events:all; }
+.viewer img { max-width:85%; max-height:85%; transform:scale(0.8); transition:0.5s; }
+.viewer.active img { transform:scale(1); }
+.nav { position:absolute; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer; padding:20px; user-select:none; }
+.prev { left:20px; } .next { right:20px; }
+.close-viewer { position:absolute; top:20px; right:30px; font-size:30px; cursor:pointer; color:white; }
+
+/* HEADER ADNART */
+.header-logo {
+    text-align: center;
+    font-size: 2.8rem;
+    letter-spacing: 6px;
+    margin-bottom: 40px;
+    cursor: pointer;
+    font-family: 'Playfair Display', serif;
+    background: linear-gradient(to right, gold, white);
+    -webkit-text-fill-color: transparent;
+    transition: all 0.4s ease;
+}
+
+.header-logo:hover {
+    transform: scale(1.05);
+    letter-spacing: 8px;
+}
+
+/* Animation changement */
+.fade {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: 0.5s;
+}
+
+
+</style>
+</head>
+
+<body>
+<div class="header-logo" id="logo">ADNART</div>
+
+
+<div class="grid">
+    <div class="card">
+        <div class="card-inner">
+            <div class="card-front"><img src="67.jpeg"></div>
+            <div class="card-back">
+                <h3>mustang horse </h3>
+                <span class="price">1 500 DH</span>
+                <button class="btn-order">Commander</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-inner">
+            <div class="card-front"><img src="WhatsApp Image 2026-04-21 at 22.40.09 (8).jpeg"></div>
+            <div class="card-back">
+                <h3>arabic horses </h3>
+                <span class="price">2 000 DH</span>
+                <button class="btn-order">Commander</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-inner">
+            <div class="card-front"><img src="WhatsApp Image 2026-04-21 at 22.40.09 (6).jpeg"></div>
+            <div class="card-back">
+                <h3>Édition Gamma</h3>
+                <span class="price">3 000 DH</span>
+                <button class="btn-order">Commander</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-inner">
+            <div class="card-front"><img src="WhatsApp Image 2026-04-21 at 22.40.09 (7).jpeg"></div>
+            <div class="card-back">
+                <h3>Édition Delta</h3>
+                <span class="price">4 500 DH</span>
+                <button class="btn-order">Commander</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-inner">
+            <div class="card-front"><img src="Gemini_Generated_Image_a5e7ova5e7ova5e7.png"></div>
+            <div class="card-back">
+                <h3>Édition Delta</h3>
+                <span class="price">2 500 DH</span>
+                <button class="btn-order">Commander</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-inner">
+            <div class="card-front"><img src="Gemini_Generated_Image_6yzv5c6yzv5c6yzv.png"></div>
+            <div class="card-back">
+                <h3>Édition Delta</h3>
+                <span class="price">2 500 DH</span>
+                <button class="btn-order">Commander</button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<div class="modal" id="orderModal">
+    <div class="form-container">
+        <h2>Commande Directe</h2>
+        <form id="purchaseForm">
+            <input type="text" id="nom" placeholder="Nom" required>
+            <span class="error" id="errNom">Minimum 2 lettres</span>
+            
+            <input type="text" id="prenom" placeholder="Prénom" required>
+            <span class="error" id="errPrenom">Minimum 2 lettres</span>
+            
+            <input type="email" id="email" placeholder="Email" required>
+            <span class="error" id="errEmail">Email invalide</span>
+            
+            <input type="tel" id="tel" placeholder="Téléphone (ex: 0612345678)" required>
+            <span class="error" id="errTel">Format : 06/07/05 + 8 chiffres</span>
+            
+            <button type="submit" class="submit-btn">Valider la commande</button>
+            <button type="button" style="background:none; color:gray; border:none; width:100%; margin-top:10px; cursor:pointer;" id="closeForm">Fermer</button>
+        </form>
+    </div>
+     
+</div>
+
+<div class="viewer" id="viewer">
+    <span class="close-viewer" id="close">&times;</span>
+    <span class="nav prev" id="prev">&#8249;</span>
+    <img id="viewerImg">
+    <span class="nav next" id="next">&#8250;</span>
+</div>
+
+<script>
+const cards = document.querySelectorAll('.card');
+const images = document.querySelectorAll('.card-front img');
+const viewer = document.getElementById('viewer');
+const viewerImg = document.getElementById('viewerImg');
+const orderModal = document.getElementById('orderModal');
+
+let currentIdx = 0;
+
+// CARDS
+cards.forEach((card, index) => {
+    const btn = card.querySelector('.btn-order');
+
+    card.addEventListener('click', (e) => {
+        // Si on clique sur le bouton → ouvre modal
+        if (e.target === btn) return;
+
+        card.classList.toggle('flipped');
+    });
+
+    // BOUTON COMMANDER
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        orderModal.classList.add('active');
+    });
+
+    // DOUBLE CLICK IMAGE
+    card.querySelector('.card-front').addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        currentIdx = index;
+        viewerImg.src = images[index].src;
+        viewer.classList.add('active');
+    });
+});
+
+// FORMULAIRE
+const form = document.getElementById('purchaseForm');
+
+form.onsubmit = (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    if (document.getElementById('nom').value.trim().length < 2) {
+        document.getElementById('errNom').style.display = "block";
+        valid = false;
+    } else document.getElementById('errNom').style.display = "none";
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(document.getElementById('email').value)) {
+        document.getElementById('errEmail').style.display = "block";
+        valid = false;
+    } else document.getElementById('errEmail').style.display = "none";
+
+    const telRegex = /^(05|06|07)\d{8}$/;
+    if (!telRegex.test(document.getElementById('tel').value)) {
+        document.getElementById('errTel').style.display = "block";
+        valid = false;
+    } else document.getElementById('errTel').style.display = "none";
+
+    if (valid) {
+        alert(" Merci " + document.getElementById('prenom').value + ", Adnane Art vous contactera bientôt.");
+        orderModal.classList.remove('active');
+        form.reset();
+    }
+};
+
+// FERMETURES
+document.getElementById('closeForm').onclick = () => orderModal.classList.remove('active');
+document.getElementById('close').onclick = () => viewer.classList.remove('active');
+
+// NAVIGATION IMAGE
+document.getElementById('next').onclick = (e) => {
+    e.stopPropagation();
+    currentIdx = (currentIdx + 1) % images.length;
+    viewerImg.src = images[currentIdx].src;
+};
+
+document.getElementById('prev').onclick = (e) => {
+    e.stopPropagation();
+    currentIdx = (currentIdx - 1 + images.length) % images.length;
+    viewerImg.src = images[currentIdx].src;
+};
+
+// HEADER ADNART
+const logo = document.getElementById("logo");
+let changed = false;
+
+logo.addEventListener("click", () => {
+    logo.classList.add("fade");
+
+    setTimeout(() => {
+        logo.textContent = changed ? "ADNART" : "une pièce one of one";
+        changed = !changed;
+        logo.classList.remove("fade");
+    }, 300);
+});
+
+
+</script>
+
+</body>
+</html>
